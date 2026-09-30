@@ -32,7 +32,10 @@ public class RentalApplicationService implements RentalUseCase {
         if (rental.status() == RentalStatus.RETURNED) {
             return rental;
         }
+        if (!rentals.markReturned(rentalId)) {
+            return rentals.findById(rentalId).orElseThrow(() -> new RentalNotFoundException(rentalId));
+        }
         inventory.release(rental.bookId());
-        return rentals.update(new Rental(rental.id(), rental.bookId(), rental.userId(), RentalStatus.RETURNED));
+        return new Rental(rental.id(), rental.bookId(), rental.userId(), RentalStatus.RETURNED);
     }
 }

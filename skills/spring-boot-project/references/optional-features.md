@@ -96,8 +96,9 @@ assuming a Unix shell. Document the available tasks in the project or workspace 
 
 ## Other Optional Capabilities
 
-Scheduling, Spring Batch, Spring Modulith, GraphQL, WebFlux, native-image builds, and container packaging are also opt-in.
-Select them only when the request defines their runtime or delivery behavior.
+Scheduling, Spring Batch, GraphQL, WebFlux, native-image builds, and container packaging are opt-in. Spring Modulith is
+also opt-in for an ordinary `monolith`, but required whenever the selected topology is `modular-monolith` because it is
+the module-boundary and verification mechanism for that topology.
 
 ## Validation
 

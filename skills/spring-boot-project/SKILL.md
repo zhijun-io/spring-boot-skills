@@ -169,7 +169,11 @@ when the request selects an optional capability.
 ### Optional Stack
 
 Read [references/optional-features.md](references/optional-features.md) when the request selects an optional capability.
-Do not add optional dependencies or placeholder code unless their behavior and boundaries are requested.
+Do not add optional dependencies or placeholder code unless their behavior and boundaries are requested. Spring Modulith is
+the exception for the selected `modular-monolith` topology: it is required there, not optional. Add its compatible core
+starter, declare the application with `@Modulithic`, expose cross-module APIs as named interfaces, and run
+`ApplicationModules.of(...).verify()` in the test suite. A modular monolith must not be represented only by feature
+packages and custom ArchUnit rules.
 
 ### Optional Developer Tooling
 

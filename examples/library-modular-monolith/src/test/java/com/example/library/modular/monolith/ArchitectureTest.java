@@ -3,11 +3,18 @@ package com.example.library.modular.monolith;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import org.junit.jupiter.api.Test;
+import org.springframework.modulith.core.ApplicationModules;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "com.example.library.modular.monolith")
 class ArchitectureTest {
+
+    @Test
+    void verifiesSpringModulithBoundaries() {
+        ApplicationModules.of(LibraryModularMonolithApplication.class).verify();
+    }
 
     @ArchTest
     static final ArchRule domain_does_not_depend_on_frameworks_or_adapters = noClasses()

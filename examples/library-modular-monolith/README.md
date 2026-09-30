@@ -10,9 +10,10 @@ boundaries.
 - Business modules: `book` and `rental`
 - Each module owns its domain, application, and adapters
 - Cross-module access is limited to the public `book.api` contract
+- Spring Modulith `2.1.0` declares and verifies the module graph; ArchUnit complements it with internal hexagonal rules
 - PostgreSQL with MyBatis-Plus `3.5.15`, Flyway, and Spring Boot Docker Compose support
 - REST/JSON, validation, Problem Details, OpenAPI, Actuator, Lombok, MapStruct
-- PostgreSQL Testcontainers and ArchUnit module-boundary tests
+- PostgreSQL Testcontainers, Spring Modulith verification, and ArchUnit boundary tests
 
 ## Run
 

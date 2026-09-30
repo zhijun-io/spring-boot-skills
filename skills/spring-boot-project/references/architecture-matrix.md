@@ -63,5 +63,7 @@ Reject every other combination in the first version. Do not silently coerce a re
 - `independent-projects` has no root Maven reactor. `maven-reactor` has a root `pom.xml` with `pom` packaging and one
   module entry per service.
 - Each modular module owns its internal classes. Other modules may use only its declared public API or events.
+- A `modular-monolith` uses Spring Modulith by default and must declare and verify its application modules. Spring Modulith
+  remains optional for ordinary `monolith` projects.
 - A persistence adapter must not leak into a domain or API package where the selected dependency style forbids it.
 - The default is `monolith + layered + feature-layered + single-project` when no architecture is specified.

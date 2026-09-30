@@ -61,6 +61,11 @@ add broad package-name rules that make unrelated classes illegal.
 - A module may expose only its declared `api` package or event types to other modules.
 - A module must not depend on another module's `domain`, `application`, `adapter`, or infrastructure package.
 - Require at least two user-named business modules; never create a technical placeholder module.
+- Use Spring Modulith as the module-boundary mechanism, not only package naming or custom ArchUnit rules. Annotate the
+  application with `@Modulithic`, declare module metadata with `@ApplicationModule`, mark cross-module APIs with
+  `@NamedInterface`, and include `ApplicationModules.of(Application.class).verify()` in the ordinary test suite.
+- Keep ArchUnit as a complementary check for the internal hexagonal rules and positive adapter-to-port usage; it does not
+  replace Spring Modulith verification.
 
 ### Microservices + Layered + Technical
 

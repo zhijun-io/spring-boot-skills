@@ -55,6 +55,10 @@ class LibraryApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RETURNED"));
 
+        mockMvc.perform(post("/api/rentals/{rentalId}/return", rentalId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("RETURNED"));
+
         mockMvc.perform(get("/api/books/{bookId}", bookId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.availableCopies").value(1));
