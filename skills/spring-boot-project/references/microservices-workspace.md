@@ -9,6 +9,8 @@ layout inside one Spring Boot application.
 Collect these inputs before generating service code:
 
 - service name and responsibility for every service;
+- normalized service identifier for every service: lowercase `kebab-case`, unique within the workspace, and valid as a
+  directory and artifact identifier;
 - owned resources and persistence boundary for every service;
 - synchronous HTTP or asynchronous messaging contracts, if services communicate;
 - independent deployment, scaling, or failure-isolation requirements;
@@ -21,28 +23,36 @@ configuration server, broker, shared business library, or cross-service database
 
 ### Independent Projects
 
-Generate one complete Maven Spring Boot project per service. Each service has its own `pom.xml`, application entry point,
-configuration, package namespace, tests, and artifact. The workspace root contains only the requested orchestration,
-documentation, and development tooling. Do not generate a root Maven reactor.
+Generate one complete Maven Spring Boot project per service. Each service has its own `pom.xml`, Maven Wrapper, application
+entry point, configuration, package namespace, tests, and artifact. The workspace root contains only the requested
+orchestration, documentation, and development tooling. Do not generate a root Maven reactor.
 
 ### Maven Reactor
 
 Generate a root `pom.xml` with `pom` packaging and one module entry per service. Each service module still has its own
-Spring Boot application, configuration, tests, and runnable artifact. Use the root only for aggregation and explicitly
-requested dependency or plugin management. Do not introduce production dependencies between service modules.
+Maven Wrapper, Spring Boot application, configuration, tests, and runnable artifact. Use the root only for aggregation and
+explicitly requested dependency or plugin management. Do not introduce production dependencies between service modules.
 
 ## Service Boundaries
 
 Each service owns its domain model, application logic, API boundary, persistence mappings, and database contract. Do not
 share tables, MyBatis-Plus mappers, persistence models, or domain classes between services. Shared wire contracts are
-allowed only when the user defines their ownership and versioning; keep them at an explicit contract boundary.
+allowed only when the user defines their ownership and versioning; keep them in an explicit contract-only module. That
+module may contain wire DTOs and schemas, but never domain models, persistence models, repositories, mappers, or business
+logic. This is the only allowed shared production dependency.
 
 When persistence is enabled for multiple services, keep database ownership separate. The default local setup uses one
-PostgreSQL container with one database per service; a shared PostgreSQL server is only a deployment convenience and
-services must not share business tables or migrations.
+PostgreSQL container with one database per service. Generate a root
+`docker/postgres/init/001-create-databases.sql` containing one `CREATE DATABASE` statement per derived database identifier.
+Derive the database identifier by replacing service-id hyphens with underscores, for example `order-service` becomes
+`order_service`. Configure each service with its own explicit JDBC database name and Flyway history. A shared PostgreSQL
+server is only a deployment convenience; services must not share business tables or migrations.
 
 The root `compose.yaml` starts only the infrastructure required by the selected services. Add service containers only
-when container packaging is explicitly selected. Services run through their Maven Wrapper by default.
+when container packaging is explicitly selected. Each service sets `spring.docker.compose.file=../compose.yaml` and
+`spring.docker.compose.lifecycle-management=start-only` when it is launched from its own directory, and uses an explicit
+database URL for its database. `start-only` prevents one service process from stopping the shared database when it exits.
+Root Taskfile run tasks must change into the service directory before invoking its Maven Wrapper.
 
 ## Communication
 
@@ -53,6 +63,8 @@ microservices.
 
 ## Validation
 
-Run each service's tests and architecture tests. For `maven-reactor`, also run the root Maven test. If Compose or explicit
-container workflows are requested, validate the Compose configuration and the selected service startup flow. Keep the
-workspace when one service fails and report the first actionable service and command.
+Run [the workspace validator](../scripts/validate_microservices_workspace.py) with the selected layout and service
+identifiers before running each service's tests and architecture tests. For `maven-reactor`, also run the root Maven test.
+If Compose or explicit container workflows are requested, validate the Compose configuration, database initialization
+script, and selected service startup flow. Keep the workspace when one service fails and report the first actionable
+service and command.

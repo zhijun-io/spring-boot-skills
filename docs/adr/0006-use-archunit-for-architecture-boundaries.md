@@ -1,8 +1,8 @@
 # Use ArchUnit for Architecture Boundaries
 
-Generated projects include `com.tngtech.archunit:archunit-junit5` in test scope and generate architecture tests for the selected supported architecture combination. This makes the topology, dependency style, and package layout executable constraints while keeping ArchUnit out of the runtime artifact.
+Generated projects include `com.tngtech.archunit:archunit-junit5` in test scope and generate architecture tests for the selected supported architecture combination. This makes the topology, dependency style, and package layout executable constraints while keeping ArchUnit out of the runtime artifact. The ArchUnit version is resolved as a current version compatible with the selected Spring Boot test stack rather than fixed by this ADR.
 
-The current verified version is `1.5.1`; an overridden Spring Boot version must re-check compatibility with its JUnit test stack.
+The selected Spring Boot version must be checked against the resolved ArchUnit and JUnit test stack during generation.
 
 ## Considered Options
 

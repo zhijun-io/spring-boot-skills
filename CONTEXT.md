@@ -95,11 +95,14 @@ default `1.0.0`, and Spring MVC controller mappings.
 
 **Exception Handling Baseline**:
 Generated applications use `@RestControllerAdvice` to map validation, malformed request, declared application, and
-unexpected failures to Problem Details without exposing internal details.
+unexpected failures to Problem Details without exposing internal details. Every client-visible error has a stable code;
+unexpected failures use a generic internal-error response. A broad fallback handler must not preempt declared failures or
+malformed-request handling; custom resolver precedence is explicit and verified with API tests.
 
 **Internationalization Baseline**:
 Generated applications use Spring `MessageSource`, a fallback `messages.properties` bundle, and `Accept-Language`
-locale resolution for validation and problem-detail messages. Locale-specific bundles are added when requested.
+locale resolution for validation and problem-detail messages. User-visible messages use message keys rather than literal
+annotation strings. Locale-specific bundles are added when requested.
 
 **Optional Stack**:
 RestTestClient, HTTP Service Clients, API version negotiation, JSpecify null-safety, security, observability, caching,
@@ -114,4 +117,8 @@ materially ambiguous, ask for them instead of inventing a default domain example
 
 **Generated Project Validation**:
 After generation, run formatting checks, compilation, and tests for every project or service. For a Maven reactor, also
-run the root build. Preserve generated files and stop on the first root cause when validation fails.
+run the root build. Every declared operation needs success and relevant failure or boundary tests; stateful or
+capacity-limited operations also need conflict and concurrency tests when required. Preserve generated files and stop on
+the first root cause when validation fails. Resolve dependencies before validating imports and inspect version-sensitive
+classes, packages, signatures, and test annotations against the resolved artifacts. API tests assert Problem Details
+content type, stable error codes, and message resolution, including malformed requests and declared failures.

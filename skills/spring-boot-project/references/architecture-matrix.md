@@ -1,8 +1,8 @@
 # Architecture Matrix
 
 Architecture is selected on three separate axes. `workspace_layout` is a separate repository and build decision for
-microservices. Each value on each axis is mutually exclusive, but only the combinations below are implemented and
-verified in the first version.
+microservices. Each value on each axis is mutually exclusive, and only the combinations below are supported in the first
+version. Every generated result must pass the service/workspace validation rules before it is handed off.
 
 ## Axes
 
@@ -57,8 +57,9 @@ Reject every other combination in the first version. Do not silently coerce a re
 - `modular-monolith` requires at least two business module names from the user. Do not create a technical fake module to satisfy the count.
 - `microservices` requires at least two user-named services and an explicit responsibility for each. Do not create
   technical placeholder services.
-- Microservices must not share business tables or production package dependencies. A root Maven reactor may manage
-  versions, but service code remains independently runnable and deployable.
+- Microservices must not share business tables or business production package dependencies. A root Maven reactor may
+  manage versions. A contract-only module is the sole allowed shared production dependency and may contain only wire
+  contracts or schemas, never domain, persistence, or business logic.
 - `independent-projects` has no root Maven reactor. `maven-reactor` has a root `pom.xml` with `pom` packaging and one
   module entry per service.
 - Each modular module owns its internal classes. Other modules may use only its declared public API or events.
