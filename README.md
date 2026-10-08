@@ -26,13 +26,13 @@ Add the jar as a dependency, then extract the skills into your agent's skills di
 
 ```bash
 # project-local
-mvn com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills
+./mvnw com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills
 
 # global, and named by skill instead of the jar path
-mvn com.skillsjars:maven-plugin:0.0.7:extract -Ddir=~/.codex/skills -DuseSkillsNameAsDirectory=true
+./mvnw com.skillsjars:maven-plugin:0.0.7:extract -Ddir=~/.codex/skills -DuseSkillsNameAsDirectory=true
 ```
 
-The artifact is not published yet, so install it locally first (`mvn install` in this repo) if you try this before a release exists.
+The artifact is not published yet, so install it locally first (`./mvnw install`) if you try this before a release exists.
 
 ## For Contributors
 
@@ -42,11 +42,28 @@ skills/<skill-name>/
 └── references/*.md   — one topic per file, self-contained
 ```
 
-- `mvn package` copies `skills/**` into `META-INF/skills/<owner>/<repo>/<skill>/`; the build fails for a skill directory without `SKILL.md`.
+- `./mvnw package` copies `skills/**` into `META-INF/skills/<owner>/<repo>/<skill>/`; the build fails for a skill directory without `SKILL.md`.
 - Adding `allowed-tools` to a `SKILL.md` requires a matching `skillsjars.skill.<name>.allowed-tools` property in `pom.xml` — the plugin compares them.
-- Verify packaging after editing: `mvn -q install` then `jar tf target/*.jar | grep META-INF/skills`.
+- Run the same checks CI runs, before pushing:
+
+```bash
+python3 .github/scripts/validate-skills.py                    # layout, frontmatter, links, catalog
+./mvnw -B clean verify                                        # build the jar
+jar tf target/spring-boot-skills-*.jar | grep META-INF/skills  # packaging
+```
+
 - Facts in reference files must be reproducible: state the version they were checked against, and prefer "this fails with X" over folklore.
+
+## CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes and pull requests to `main`:
+
+1. `validate-skills.py` — every `skills/<name>/SKILL.md` exists with a `name` matching its directory, a non-empty `description` under 1024 characters, a body, no dead relative links, and a row in `SKILLS.md`.
+2. `./mvnw clean verify` on JDK 17, then a `diff` proving the files in `META-INF/skills/` are exactly the files under `skills/`.
+3. A consumer smoke test: install the jar, generate a one-line consumer `pom.xml`, run `skillsjars:extract`, and assert the extracted `SKILL.md` and reference files land in the target directory.
+
+The built jar is uploaded as a workflow artifact. Publishing to Maven Central is not configured — that needs `licenses`/`developers` in `pom.xml`, sources and javadoc jars, signing, and `MAVEN_USERNAME`/`MAVEN_PASSWORD` (plus `GPG_*`) secrets.
 
 ## Status
 
-`0.1.0-SNAPSHOT`, no CI, no release pipeline. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
+`0.1.0-SNAPSHOT`, CI builds and verifies on every pull request, no release pipeline yet. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
