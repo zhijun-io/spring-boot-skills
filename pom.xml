@@ -11,12 +11,12 @@
 
     <name>Spring Boot Skills</name>
     <description>SkillsJars for Spring Boot applications — testing conventions, slice selection and Maven build setup</description>
-    <url>https://github.com/zhijunio/spring-boot-skills</url>
+    <url>https://github.com/zhijun-io/spring-boot-skills</url>
 
     <scm>
-        <url>https://github.com/zhijunio/spring-boot-skills</url>
-        <connection>scm:git:git://github.com/zhijunio/spring-boot-skills.git</connection>
-        <developerConnection>scm:git:git@github.com:zhijunio/spring-boot-skills.git</developerConnection>
+        <url>https://github.com/zhijun-io/spring-boot-skills</url>
+        <connection>scm:git:git://github.com/zhijun-io/spring-boot-skills.git</connection>
+        <developerConnection>scm:git:git@github.com:zhijun-io/spring-boot-skills.git</developerConnection>
     </scm>
 
     <properties>
