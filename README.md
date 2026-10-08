@@ -44,26 +44,38 @@ skills/<skill-name>/
 
 - `./mvnw package` copies `skills/**` into `META-INF/skills/<owner>/<repo>/<skill>/`; the build fails for a skill directory without `SKILL.md`.
 - Adding `allowed-tools` to a `SKILL.md` requires a matching `skillsjars.skill.<name>.allowed-tools` property in `pom.xml` — the plugin compares them.
-- Run the same checks CI runs, before pushing:
+- Facts in reference files must be reproducible: state the version they were checked against, and prefer "this fails with X" over folklore.
+- Verify locally what CI does not cover — CI only builds the jar:
 
 ```bash
-python3 .github/scripts/validate-skills.py                    # layout, frontmatter, links, catalog
-./mvnw -B clean verify                                        # build the jar
-jar tf target/spring-boot-skills-*.jar | grep META-INF/skills  # packaging
+./mvnw -B clean verify                                             # what CI runs
+jar tf target/spring-boot-skills-*.jar | grep '^META-INF/skills/'  # every file shipped, nothing missing
+./mvnw -q -B install
 ```
 
-- Facts in reference files must be reproducible: state the version they were checked against, and prefer "this fails with X" over folklore.
+Then, from any project that depends on `io.github.zhijunio:spring-boot-skills`, run
+`mvn com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills`. That extraction is the only
+end-to-end proof the jar is usable — packaging can look correct and still be invisible to an agent.
 
-## CI
+Relative links from `SKILL.md` into `references/*.md` are worth a once-over as well: agents follow them, and a dead link drops context without any error.
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes and pull requests to `main`:
+## CI and Publishing
 
-1. `validate-skills.py` — every `skills/<name>/SKILL.md` exists with a `name` matching its directory, a non-empty `description` under 1024 characters, a body, no dead relative links, and a row in `SKILLS.md`.
-2. `./mvnw clean verify` on JDK 17, then a `diff` proving the files in `META-INF/skills/` are exactly the files under `skills/`.
-3. A consumer smoke test: install the jar, generate a one-line consumer `pom.xml`, run `skillsjars:extract`, and assert the extracted `SKILL.md` and reference files land in the target directory.
+| Workflow | Trigger | What it runs |
+| -------- | ------- | ------------ |
+| `ci.yml` | push and pull request to `main` | `ci-build.yml` from `spring-ai-community/community-workflows`: JDK 17 (temurin), Maven cache, `./mvnw clean verify -B` |
+| `publish-snapshot.yml` | push to `main`, manual dispatch | `./mvnw deploy` of the snapshot, with `MAVEN_USERNAME` / `MAVEN_PASSWORD` |
+| `release.yml` | manual dispatch with `version` | sets the version, verifies, `./mvnw deploy -Prelease`, then tags — also needs `GPG_SECRET_KEY` / `GPG_PASSPHRASE` |
 
-The built jar is uploaded as a workflow artifact. Publishing to Maven Central is not configured — that needs `licenses`/`developers` in `pom.xml`, sources and javadoc jars, signing, and `MAVEN_USERNAME`/`MAVEN_PASSWORD` (plus `GPG_*`) secrets.
+All three delegate to that shared workflow repository, mirroring how `spring-testing-skills` is set up. Two consequences: they invoke `./mvnw`, so the wrapper is part of the contract; and they track `@main` of an external repository, so an upstream change can break CI here.
+
+Publishing is wired but not usable yet:
+
+- `pom.xml` has no `distributionManagement` and no `release` profile (sources jar, javadoc jar, GPG signing, Central publishing plugin), and Central requires `licenses` and `developers` — none of which is present.
+- The `MAVEN_*` and `GPG_*` secrets are not configured, and the `io.github.zhijunio` namespace must be registered before the first release.
+- `<url>` and `<scm>` point at `github.com/zhijunio/...` while `origin` is `github.com:zhijun-io/spring-boot-skills`. The path inside the jar comes from `<scm>`, so skills currently land under `META-INF/skills/zhijunio/spring-boot-skills/...`. Align one side with the other before publishing, or consumers get a misleading location.
+- `ci.yml` does not pass `upload-test-results: false`, so that step warns about a missing `target/surefire-reports/` — there is no Java source in this repository.
 
 ## Status
 
-`0.1.0-SNAPSHOT`, CI builds and verifies on every pull request, no release pipeline yet. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
+`0.1.0-SNAPSHOT`. CI verifies the jar build on every pull request; the snapshot and release workflows exist but are not configured. Nothing is published yet, so use `./mvnw install` for local consumption. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
