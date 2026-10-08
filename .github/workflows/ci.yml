@@ -5,79 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
-    name: Package, verify and consume skills
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: temurin
-          cache: maven
-
-      - name: Validate skill layout, frontmatter and links
-        run: python3 .github/scripts/validate-skills.py
-
-      - name: Build SkillsJar
-        run: ./mvnw -B -ntp clean verify
-
-      - name: Check packaged files match the source tree
-        run: |
-          set -euo pipefail
-          jar tf target/spring-boot-skills-*.jar \
-            | grep '^META-INF/skills/' \
-            | sed -E 's|^META-INF/skills/[^/]+/[^/]+/||' \
-            | grep -v -e '^$' -e '/$' | sort > /tmp/in-jar.txt
-          find skills -type f | sed 's|^skills/||' | sort > /tmp/on-disk.txt
-          diff -u /tmp/on-disk.txt /tmp/in-jar.txt
-          echo "Packaged $(wc -l < /tmp/in-jar.txt) skill file(s)"
-
-      - name: Extract skills the way a consumer project does
-        run: |
-          set -euo pipefail
-          VERSION=$(./mvnw -q -B -ntp -DforceStdout help:evaluate -Dexpression=project.version)
-          PLUGIN=$(./mvnw -q -B -ntp -DforceStdout help:evaluate -Dexpression=skillsjars.version)
-          ./mvnw -q -B -ntp install
-          WORK=$(mktemp -d)
-          cat > "$WORK/pom.xml" <<XML
-          <?xml version="1.0" encoding="UTF-8"?>
-          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-            <modelVersion>4.0.0</modelVersion>
-            <groupId>ci</groupId>
-            <artifactId>consumer</artifactId>
-            <version>1</version>
-            <dependencies>
-              <dependency>
-                <groupId>io.github.zhijunio</groupId>
-                <artifactId>spring-boot-skills</artifactId>
-                <version>${VERSION}</version>
-              </dependency>
-            </dependencies>
-          </project>
-          XML
-          ./mvnw -B -ntp -f "$WORK/pom.xml" "com.skillsjars:maven-plugin:${PLUGIN}:extract" \
-            -Ddir="$WORK/.codex/skills" -DuseSkillsNameAsDirectory=true
-          test -f "$WORK/.codex/skills/spring-boot-testing/SKILL.md"
-          COUNT=$(find "$WORK/.codex/skills" -name '*.md' | wc -l | tr -d ' ')
-          echo "Extracted $COUNT markdown file(s)"
-          test "$COUNT" -ge 18
-
-      - name: Upload SkillsJar
-        uses: actions/upload-artifact@v4
-        with:
-          name: spring-boot-skills
-          path: target/spring-boot-skills-*.jar
-          retention-days: 14
+    uses: spring-ai-community/community-workflows/.github/workflows/ci-build.yml@main
+    with:
+      java-version: '17'
