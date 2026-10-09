@@ -12,9 +12,36 @@ See [SKILLS.md](SKILLS.md) for the catalog.
 
 All content targets **Spring Boot 4.x / Spring Framework 7.x / Spring Security 7.x / JUnit 6**, with Boot 3.x differences called out per file.
 
-## For Consumers
+## Installation
 
-Add the jar as a dependency, then extract the skills into your agent's skills directory:
+Skills install into an agent's skills directory: `~/.codex/skills` (or `.codex/skills` in a project) for Codex, `~/.claude/skills` (or `.claude/skills`) for Claude Code. Three ways to get them there:
+
+### Install with npx
+
+The [skills CLI](https://skills.sh) clones this repository, finds every `SKILL.md`, and links the skills into your agents' skills directories:
+
+```bash
+# project skills in the current directory
+npx skills add zhijun-io/spring-boot-skills
+
+# a single skill, globally, for Codex only
+npx skills add zhijun-io/spring-boot-skills -s spring-boot-testing -g -a codex
+```
+
+`-l` lists what the repository ships without installing; `--copy` writes real files instead of symlinks.
+
+### Copy from the repository
+
+```bash
+git clone https://github.com/zhijun-io/spring-boot-skills.git
+cp -r spring-boot-skills/skills/spring-boot-testing ~/.codex/skills/
+```
+
+Each directory under `skills/` is a self-contained skill (`SKILL.md` plus `references/`), so a plain copy is enough — no build step.
+
+### Extract from the SkillsJars jar
+
+Add the jar as a dependency, then extract the skills:
 
 ```xml
 <dependency>
@@ -37,6 +64,8 @@ declared there, and otherwise from the newest release in the repository — so t
 command does not go stale when the plugin version moves up.
 
 The artifact is not published yet, so install it locally first (`./mvnw install`) if you try this before a release exists.
+
+Whichever method you use, restart the agent session so the new skill is picked up.
 
 ## For Contributors
 
