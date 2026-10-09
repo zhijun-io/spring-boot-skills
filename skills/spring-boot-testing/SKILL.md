@@ -5,9 +5,11 @@ description: >-
   @WebMvcTest, @DataJpaTest, @JsonTest, @RestClientTest, @SpringBootTest, Testcontainers, Maven Surefire/Failsafe
   setup, Spring Security test support (@WithMockUser, @MockitoBean JwtDecoder, SecurityFilterChain, jwt(),
   oauth2ResourceServer, method security), and WebSocket/STOMP testing (WebSocketStompClient, @MessageMapping,
-  @SendToUser, @EnableWebSocketSecurity). Use when writing or fixing tests, choosing between MockMvc, MockMvcTester,
-  RestTestClient, getting "No qualifying bean of type 'MockMvc'", "@MockBean is deprecated", slice tests returning
-  200 where 403 was expected, flaky @SpringBootTest contexts, or slow test suites.
+  @SendToUser, @EnableWebSocketSecurity), and MyBatis-Plus persistence testing (@MybatisPlusTest, BaseMapper,
+  IService/ServiceImpl, LambdaQueryWrapper, PaginationInnerInterceptor). Use when writing or fixing tests, choosing
+  between MockMvc, MockMvcTester, RestTestClient, getting "No qualifying bean of type 'MockMvc'", "@MockBean is
+  deprecated", "can not find lambda cache for this entity", slice tests returning 200 where 403 was expected,
+  flaky @SpringBootTest contexts, or slow test suites.
 ---
 
 # Spring Boot Testing
@@ -16,7 +18,7 @@ This skill provides expert guide for testing Spring Boot 4 applications with mod
 
 ## Tested With
 
-Spring Boot 4.1.1, Spring Framework 7.0.9, Spring Security 7.1.1, JUnit 6.0.3, AssertJ 3.27, Mockito (managed by the Boot BOM), Testcontainers 2.0, Maven Surefire/Failsafe 3.5. Facts in the references were verified against these versions; Boot 3.x differences are called out per reference.
+Spring Boot 4.1.1, Spring Framework 7.0.9, Spring Security 7.1.1, JUnit 6.0.3, AssertJ 3.27, Mockito (managed by the Boot BOM), Testcontainers 2.0, Maven Surefire/Failsafe 3.5, MyBatis-Plus 3.5.17. Facts in the references were verified against these versions; Boot 3.x differences are called out per reference.
 
 ## Do NOT Use This Skill When
 
@@ -37,6 +39,7 @@ Spring Boot 4.1.1, Spring Framework 7.0.9, Spring Security 7.1.1, JUnit 6.0.3, A
 |----------|------------|-----------|
 | Controller + HTTP semantics | `@WebMvcTest` | [references/webmvctest.md](references/webmvctest.md) |
 | Repository + JPA queries | `@DataJpaTest` | [references/datajpatest.md](references/datajpatest.md) |
+| Mapper + SQL with MyBatis-Plus | `@MybatisPlusTest` | [references/mybatis-plus-testing.md](references/mybatis-plus-testing.md) |
 | REST client + external APIs | `@RestClientTest` | [references/restclienttest.md](references/restclienttest.md) |
 | JSON (de)serialization | `@JsonTest` | [references/test-slices-overview.md](references/test-slices-overview.md) |
 | URL rules, 401 vs 403, CSRF, JWT/principal | `@WebMvcTest` + `@Import(SecurityConfig.class)` | [references/security-testing.md](references/security-testing.md) |
@@ -52,6 +55,7 @@ Spring Boot 4.1.1, Spring Framework 7.0.9, Spring Security 7.1.1, JUnit 6.0.3, A
 - [references/restclienttest.md](references/restclienttest.md) - REST client testing
 - [references/security-testing.md](references/security-testing.md) - Authentication, authorization, method security
 - [references/websocket-testing.md](references/websocket-testing.md) - WebSocket handshake and STOMP round-trips
+- [references/mybatis-plus-testing.md](references/mybatis-plus-testing.md) - MyBatis-Plus slice, pagination, service layer
 
 ## Testing Tools Reference
 
@@ -90,6 +94,9 @@ Testing a controller endpoint?
 
 Testing repository queries?
   Yes → @DataJpaTest with Testcontainers (real DB)
+
+Testing MyBatis-Plus mappers or IService?
+  Yes → @MybatisPlusTest (mybatis-plus-spring-boot4-starter-test)
 
 Testing business logic in service?
   Yes → Plain JUnit + Mockito (no Spring context)

@@ -8,7 +8,7 @@ See [SKILLS.md](SKILLS.md) for the catalog.
 
 | Skill | References |
 |-------|------------|
-| `spring-boot-testing` | slice overview, `@WebMvcTest`, `@DataJpaTest`, `@RestClientTest`, MockMvc classic + tester, RestTestClient, `@MockitoBean`, AssertJ basics/collections, Instancio, Testcontainers JDBC, context caching, Boot 4 migration, security testing, WebSocket/STOMP testing, maven-plugin |
+| `spring-boot-testing` | slice overview, `@WebMvcTest`, `@DataJpaTest`, `@RestClientTest`, MockMvc classic + tester, RestTestClient, `@MockitoBean`, AssertJ basics/collections, Instancio, Testcontainers JDBC, context caching, Boot 4 migration, security testing, WebSocket/STOMP testing, MyBatis-Plus testing (`@MybatisPlusTest`, pagination, service layer), maven-plugin |
 
 All content targets **Spring Boot 4.x / Spring Framework 7.x / Spring Security 7.x / JUnit 6**, with Boot 3.x differences called out per file.
 
