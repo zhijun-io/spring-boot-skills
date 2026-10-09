@@ -27,7 +27,6 @@ permissions:
 
 jobs:
   release:
-    if: github.repository_owner == 'zhijun-io'
     permissions:
       contents: write
     uses: zhijun-io/github-workflows/.github/workflows/maven-central-release.yml@main

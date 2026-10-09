@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   publish:
-    if: github.repository_owner == 'zhijun-io'
     uses: zhijun-io/github-workflows/.github/workflows/publish-snapshot.yml@main
     with:
       java-version: '17'
