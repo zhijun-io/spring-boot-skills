@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    uses: spring-ai-community/community-workflows/.github/workflows/ci-build.yml@main
+    uses: zhijun-io/github-workflows/.github/workflows/ci-build.yml@main
     with:
       java-version: '17'
       upload-test-results: false
