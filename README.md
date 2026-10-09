@@ -26,11 +26,15 @@ Add the jar as a dependency, then extract the skills into your agent's skills di
 
 ```bash
 # project-local
-./mvnw com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills
+./mvnw com.skillsjars:maven-plugin:extract -Ddir=.codex/skills
 
 # global, and named by skill instead of the jar path
-./mvnw com.skillsjars:maven-plugin:0.0.7:extract -Ddir=~/.codex/skills -DuseSkillsNameAsDirectory=true
+./mvnw com.skillsjars:maven-plugin:extract -Ddir=~/.codex/skills -DuseSkillsNameAsDirectory=true
 ```
+
+Omit the plugin version. Maven takes it from your `pom.xml` when the plugin is
+declared there, and otherwise from the newest release in the repository — so this
+command does not go stale when the plugin version moves up.
 
 The artifact is not published yet, so install it locally first (`./mvnw install`) if you try this before a release exists.
 
@@ -54,7 +58,7 @@ jar tf target/spring-boot-skills-*.jar | grep '^META-INF/skills/'  # every file 
 ```
 
 Then, from any project that depends on `io.github.zhijun-io:spring-boot-skills`, run
-`mvn com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills`. That extraction is the only
+`mvn com.skillsjars:maven-plugin:extract -Ddir=.codex/skills`. That extraction is the only
 end-to-end proof the jar is usable — packaging can look correct and still be invisible to an agent.
 
 Relative links from `SKILL.md` into `references/*.md` are worth a once-over as well: agents follow them, and a dead link drops context without any error.
