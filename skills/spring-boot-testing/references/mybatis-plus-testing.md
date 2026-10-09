@@ -151,4 +151,4 @@ Otherwise test wrapper contents with string columns (`QueryWrapper.eq("status", 
 - Auto-fill (`MetaObjectHandler`) only runs inside a real MyBatis session; mocked-mapper service tests never invoke it.
 - Boot 4 with the Boot 2/3 starter fails at startup; pick the starter that matches the Boot major version.
 
-Checked against: MyBatis-Plus 3.5.17 (jar bytecode and sources on Maven Central), Spring Boot 4.0.1 BOM, mybatis-spring 4.0.0.
+Checked against: MyBatis-Plus 3.5.17 (jar bytecode and sources on Maven Central), Spring Boot 4.1.1 BOM, mybatis-spring 4.0.0.
