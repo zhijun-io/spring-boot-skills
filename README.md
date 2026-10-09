@@ -18,7 +18,7 @@ Add the jar as a dependency, then extract the skills into your agent's skills di
 
 ```xml
 <dependency>
-  <groupId>io.github.zhijunio</groupId>
+  <groupId>io.github.zhijun-io</groupId>
   <artifactId>spring-boot-skills</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 </dependency>
@@ -53,7 +53,7 @@ jar tf target/spring-boot-skills-*.jar | grep '^META-INF/skills/'  # every file 
 ./mvnw -q -B install
 ```
 
-Then, from any project that depends on `io.github.zhijunio:spring-boot-skills`, run
+Then, from any project that depends on `io.github.zhijun-io:spring-boot-skills`, run
 `mvn com.skillsjars:maven-plugin:0.0.7:extract -Ddir=.codex/skills`. That extraction is the only
 end-to-end proof the jar is usable — packaging can look correct and still be invisible to an agent.
 
@@ -69,13 +69,35 @@ Relative links from `SKILL.md` into `references/*.md` are worth a once-over as w
 
 All three delegate to that shared workflow repository, mirroring how `spring-testing-skills` is set up. Two consequences: they invoke `./mvnw`, so the wrapper is part of the contract; and they track `@main` of an external repository, so an upstream change can break CI here.
 
-Publishing is wired but not usable yet:
+The build configuration is not in this POM — it is inherited from
+[`io.github.zhijun-io:rose-parent:0.0.1`](https://github.com/zhijun-io/rose-parent), the shared parent POM.
+The empty `<relativePath/>` is deliberate: the parent is a released artifact resolved as a dependency, not a
+sibling directory that happens to sit next to this checkout.
+What the parent provides:
 
-- `pom.xml` has no `distributionManagement` and no `release` profile (sources jar, javadoc jar, GPG signing, Central publishing plugin), and Central requires `licenses` and `developers` — none of which is present.
-- The `MAVEN_*` and `GPG_*` secrets are not configured, and the `io.github.zhijunio` namespace must be registered before the first release.
-- `<url>` and `<scm>` point at `github.com/zhijunio/...` while `origin` is `github.com:zhijun-io/spring-boot-skills`. The path inside the jar comes from `<scm>`, so skills currently land under `META-INF/skills/zhijunio/spring-boot-skills/...`. Align one side with the other before publishing, or consumers get a misleading location.
-- `ci.yml` does not pass `upload-test-results: false`, so that step warns about a missing `target/surefire-reports/` — there is no Java source in this repository.
+- the `release` profile: `central-publishing-maven-plugin` with `autoPublish`, GPG signing with loopback pinentry, sources and javadoc jars
+- `distributionManagement` for snapshots
+- plugin versions (`maven-compiler`, `surefire`, `jar`, `deploy`, `source`, `javadoc`, `flatten`, `spring-javaformat`) and `java.version`
+- the `licenses` and `developers` blocks Central requires
+
+What this POM keeps: the SkillsJars plugin and `skillsjars.version`, its own `<url>` and `<scm>` (the path inside the jar comes from `<scm>`, so it must point at this repository), the `skills/` tree and the docs.
+
+`rose-parent:0.0.1` is released, but so far only into the private repository manager behind the developer's
+`~/.m2/settings.xml` (`wesine-releases` / `wesine-snapshots`). Consequences:
+
+- A GitHub-hosted runner has neither that `settings.xml` nor that artifact in `~/.m2`, so CI cannot resolve the
+  parent until `rose-parent` is on Maven Central or the runner is given equivalent settings and credentials.
+  A parent POM cannot declare the repository it lives in, so this is a settings-level concern, not a pom fix.
+- Consumers outside that network cannot resolve `spring-boot-skills` either: its deployed POM references a
+  parent they cannot fetch. Publishing the child to Central before the parent is there produces a POM that is
+  technically valid and practically unusable.
+- `MAVEN_*` / `GPG_*` secrets are not configured, and the `io.github.zhijun-io` namespace must be verified on Central.
+
+I verified build, packaging and extraction locally (including offline parent resolution); none of these
+workflows have been run on GitHub.
 
 ## Status
 
-`0.1.0-SNAPSHOT`. CI verifies the jar build on every pull request; the snapshot and release workflows exist but are not configured. Nothing is published yet, so use `./mvnw install` for local consumption. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
+`0.1.0-SNAPSHOT`, coordinates `io.github.zhijun-io:spring-boot-skills`. Nothing is published yet, so build and `./mvnw install` locally, then extract. Adding a skill means a new directory under `skills/` and a row in [SKILLS.md](SKILLS.md).
+
+The groupId changed from `io.github.zhijunio` to `io.github.zhijun-io` when this project started inheriting `rose-parent`. Anything that referenced the old coordinate — including an already-extracted skill directory under a `zhijunio` path — needs re-extracting.
