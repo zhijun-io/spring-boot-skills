@@ -1,4 +1,4 @@
-name: CI Build
+name: CI
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    uses: zhijun-io/github-workflows/.github/workflows/ci-build.yml@main
+    uses: zhijun-io/github-workflows/.github/workflows/ci.yml@main
     with:
       java-version: '17'
       upload-test-results: false

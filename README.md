@@ -96,9 +96,9 @@ Relative links from `SKILL.md` into `references/*.md` are worth a once-over as w
 
 | Workflow | Trigger | What it runs |
 | -------- | ------- | ------------ |
-| `ci.yml` | push and pull request to `main` | `ci-build.yml` from `zhijun-io/github-workflows`: JDK 17 (temurin), Maven cache, `./mvnw clean verify -B` |
-| `publish-snapshot.yml` | push to `main`, manual dispatch | `./mvnw deploy` of the snapshot, with `MAVEN_USERNAME` / `MAVEN_PASSWORD` |
-| `release.yml` | manual dispatch with `version` | sets the version, verifies, `./mvnw deploy -Prelease`, then tags — also needs `GPG_SECRET_KEY` / `GPG_PASSPHRASE` |
+| `ci.yml` | push and pull request to `main` | `ci.yml` from `zhijun-io/github-workflows`: JDK 17 (temurin), Maven cache, `./mvnw clean verify -B` |
+| `maven-snapshot.yml` | push to `main`, manual dispatch | `./mvnw deploy` of the snapshot, with `MAVEN_USERNAME` / `MAVEN_PASSWORD` |
+| `maven-release.yml` | manual dispatch with `version` | sets the version, verifies, `./mvnw deploy -Prelease`, then tags — also needs `GPG_SECRET_KEY` / `GPG_PASSPHRASE` |
 
 All three delegate to that shared workflow repository, mirroring how `spring-testing-skills` is set up. Two consequences: they invoke `./mvnw`, so the wrapper is part of the contract; and they track `@main` of an external repository, so an upstream change can break CI here.
 

@@ -1,19 +1,19 @@
-name: Publish Snapshot
+name: Maven Snapshot
 
 on:
   push:
     branches: [ main ]
 
 concurrency:
-  group: publish-${{ github.ref }}
+  group: snapshot-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  publish:
-    uses: zhijun-io/github-workflows/.github/workflows/publish-snapshot.yml@main
+  snapshot:
+    uses: zhijun-io/github-workflows/.github/workflows/maven-snapshot.yml@main
     with:
       java-version: '17'
       skip-tests: true
