@@ -20,9 +20,9 @@
       "automerge": false
     },
     {
-      "description": "patch、minor 与 pin 合并为一个 PR，检查通过后自动合并",
+      "description": "patch、minor 与 pin 合并为一个 PR，检查通过后自动合并；含 actions 与 maven/wrapper 依赖",
       "matchUpdateTypes": ["patch", "minor", "pin"],
-      "groupName": "actions 非 major 升级",
+      "groupName": "非 major 依赖升级",
       "automerge": true
     }
   ]
